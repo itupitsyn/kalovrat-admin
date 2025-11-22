@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model admins {
+  chat_id BigInt
+  user_id BigInt
+  chats   chats  @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_chats_admin")
+  users   users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_admins")
+
+  @@id([chat_id, user_id])
+}
+
+model chat_user_roles {
+  user_id         BigInt
+  chat_id         BigInt
+  role_id         BigInt?
+  is_set_manually Boolean? @default(false)
+  chats           chats    @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_chats_chat_user_role")
+  roles           roles?   @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_roles_chat_user_roles")
+  users           users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_chat_user_roles")
+
+  @@id([user_id, chat_id])
+}
+
+model chats {
+  id              BigInt            @id @default(autoincrement())
+  name            String            @default("")
+  admins          admins[]
+  chat_user_roles chat_user_roles[]
+  prizes          prizes[]
+  raffles         raffles[]
+}
+
+model participants {
+  raffle_date    DateTime @db.Date
+  raffle_chat_id BigInt
+  user_id        BigInt
+  raffles        raffles  @relation(fields: [raffle_date, raffle_chat_id], references: [date, chat_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_participants_raffle")
+  users          users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_participants_user")
+
+  @@id([raffle_date, raffle_chat_id, user_id])
+}
+
+model phrazes {
+  key   String @db.VarChar(255)
+  value String
+
+  @@id([key, value])
+}
+
+model prizes {
+  id         BigInt    @id @default(autoincrement())
+  created_at DateTime? @db.Timestamptz(6)
+  updated_at DateTime? @db.Timestamptz(6)
+  deleted_at DateTime? @db.Timestamptz(6)
+  name       String    @db.VarChar(255)
+  chat_id    BigInt?
+  date       DateTime? @db.Date
+  chats      chats?    @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_chats_prize")
+
+  @@index([deleted_at], map: "idx_prizes_deleted_at")
+}
+
+model raffles {
+  date          DateTime       @db.Date
+  chat_id       BigInt
+  created_at    DateTime?      @db.Timestamptz(6)
+  updated_at    DateTime?      @db.Timestamptz(6)
+  deleted_at_at DateTime?      @db.Timestamptz(6)
+  winner_id     BigInt?
+  participants  participants[]
+  chats         chats          @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_chats_raffle")
+  users         users?         @relation(fields: [winner_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_raffle")
+
+  @@id([date, chat_id])
+}
+
+model roles {
+  id              BigInt            @id @default(autoincrement())
+  name            String?
+  chat_user_roles chat_user_roles[]
+}
+
+model users {
+  id               BigInt            @id @default(autoincrement())
+  name             String
+  alternative_name String            @default("") @db.VarChar(255)
+  created_at       DateTime?         @db.Timestamptz(6)
+  updated_at       DateTime?         @db.Timestamptz(6)
+  deleted_at       DateTime?         @db.Timestamptz(6)
+  admins           admins[]
+  chat_user_roles  chat_user_roles[]
+  participants     participants[]
+  raffles          raffles[]
+
+  @@index([name], map: "idx_name")
+}
