@@ -1,8 +1,19 @@
+import { AppPagination } from '@/components/app/app-pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { PAGE_SIZE } from '@/lib/constants';
 import prisma from '@/lib/prisma';
+import { PageParams } from '@/lib/types';
+import { getPageNumber } from '@/lib/utils';
 
-export default async function Page() {
-  const data = await prisma.users.findMany();
+export default async function Page(params: PageParams) {
+  const page = await getPageNumber(params);
+  const [data, total] = await Promise.all([
+    prisma.users.findMany({
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.users.aggregate({ _count: true }),
+  ]);
 
   return (
     <div className="ml-10 flex flex-col items-start overflow-x-auto">
@@ -29,6 +40,13 @@ export default async function Page() {
               ))}
             </TableBody>
           </Table>
+
+          <AppPagination
+            page={page}
+            totalItems={total._count}
+            className="justify-start pt-6"
+            generateLink={(pageNumber) => `/users?page=${pageNumber}`}
+          />
         </div>
       </div>
     </div>

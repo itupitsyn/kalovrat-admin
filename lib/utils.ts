@@ -4,12 +4,16 @@ import { ClassNamesConfig } from 'react-select';
 import { twMerge } from 'tailwind-merge';
 
 import { Prisma } from './generated/prisma/client';
+import { PageParams } from './types';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const getUserName = (user: Pick<Prisma.usersModel, 'name' | 'alternative_name'>) => {
+export const getUserName = (user: Pick<Prisma.usersModel, 'name' | 'alternative_name'> | null) => {
+  if (!user) {
+    return '';
+  }
   return user.name ? `@${user.name}` : user.alternative_name;
 };
 
@@ -50,4 +54,17 @@ export const isAuthenticated = (hash: string | undefined) => {
     hash ===
       crypto.createHash('sha512').update(`${process.env['ADMIN_LOGIN']}:${process.env['ADMIN_PASSWORD']}`).digest('hex')
   );
+};
+
+export const getPageNumber = async ({ searchParams }: PageParams) => {
+  const pageParam = (await searchParams).page;
+  let page = Number(pageParam);
+
+  if (isNaN(page)) {
+    page = 1;
+  } else if (page < 1) {
+    page = 1;
+  }
+
+  return page;
 };
