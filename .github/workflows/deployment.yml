@@ -19,6 +19,7 @@ jobs:
             && docker stop kalovrat-admin || true \
             && docker rm kalovrat-admin || true \
             && docker rmi kalovrat-admin || true \
+            && git fetch \
             && git reset origin/master --hard \
             && docker build . -t kalovrat-admin \
             && docker run -d -p 3100:3000 \

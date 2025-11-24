@@ -1,35 +1,50 @@
 import { format } from 'date-fns';
+import { ReactNode } from 'react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import prisma from '@/lib/prisma';
 import { getUserName } from '@/lib/utils';
 
 export default async function Page() {
-  const data = await prisma.participants.findMany({
-    orderBy: [
-      {
-        raffle_date: 'desc',
-      },
-      {
+  let tableRows: ReactNode;
+
+  try {
+    const data = await prisma.participants.findMany({
+      orderBy: [
+        {
+          raffle_date: 'desc',
+        },
+        {
+          raffles: {
+            chats: {
+              name: 'asc',
+            },
+          },
+        },
+      ],
+      select: {
+        raffle_date: true,
+        raffle_chat_id: true,
+        user_id: true,
+        users: true,
         raffles: {
-          chats: {
-            name: 'asc',
+          select: {
+            chats: true,
           },
         },
       },
-    ],
-    select: {
-      raffle_date: true,
-      raffle_chat_id: true,
-      user_id: true,
-      users: true,
-      raffles: {
-        select: {
-          chats: true,
-        },
-      },
-    },
-  });
+    });
+    tableRows = data.map((item) => (
+      <TableRow key={`${item.raffle_date}-${item.raffle_chat_id}-${item.user_id}`}>
+        <TableCell>{format(item.raffle_date, 'yyyy-MM-dd')}</TableCell>
+        <TableCell>{item.raffles.chats.name}</TableCell>
+        <TableCell>{getUserName(item.users)}</TableCell>
+      </TableRow>
+    ));
+  } catch (error) {
+    console.error(error);
+    return <></>;
+  }
 
   return (
     <div className="ml-10 flex flex-col items-start overflow-hidden">
@@ -46,15 +61,7 @@ export default async function Page() {
               </TableRow>
             </TableHeader>
 
-            <TableBody>
-              {data.map((item) => (
-                <TableRow key={`${item.raffle_date}-${item.raffle_chat_id}-${item.user_id}`}>
-                  <TableCell>{format(item.raffle_date, 'yyyy-MM-dd')}</TableCell>
-                  <TableCell>{item.raffles.chats.name}</TableCell>
-                  <TableCell>{getUserName(item.users)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+            <TableBody>{tableRows}</TableBody>
           </Table>
         </div>
       </div>

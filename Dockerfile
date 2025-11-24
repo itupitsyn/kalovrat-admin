@@ -1,19 +1,18 @@
-ARG bun_image=oven/bun:alpine
+ARG bun_image=oven/bun:debian
 
 FROM $bun_image AS builder
-WORKDIR /gift-list
+WORKDIR /kalovrat-admin
 COPY . .
 RUN bun i --frozen-lockfile
 RUN bunx prisma generate
 RUN bun run build
 
 FROM $bun_image AS runner
-WORKDIR /gift-list
+WORKDIR /kalovrat-admin
 ENV NODE_ENV=production
 
-COPY --from=builder /gift-list/.next/standalone .
-COPY --from=builder /gift-list/public ./public
-COPY --from=builder /gift-list/.next/static ./.next/static
+COPY --from=builder /kalovrat-admin/.next/standalone .
+COPY --from=builder /kalovrat-admin/.next/static ./.next/static
 
 EXPOSE 3000
 CMD ["bun", "server.js"]
