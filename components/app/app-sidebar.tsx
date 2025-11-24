@@ -16,6 +16,8 @@ import {
 const menuItems = [
   { title: 'Пользователи', url: '/users' },
   { title: 'Участники', url: '/participants' },
+  { title: 'Фразы', url: '/phrazes' },
+  { title: 'Разрешения', url: '/roles' },
 ];
 
 export function AppSidebar() {

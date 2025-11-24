@@ -1,0 +1,29 @@
+name: Deploy to prod
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: deploy
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd apps/kalovrat-admin \
+            && docker stop kalovrat-admin || true \
+            && docker rm kalovrat-admin || true \
+            && docker rmi kalovrat-admin || true \
+            && git reset origin/master --hard \
+            && docker build . -t kalovrat-admin \
+            && docker run -d -p 3100:3000 \
+              -e DATABASE_URL=${{ secrets.DB_URL }} \
+              -e ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }} \
+              -e ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }} \
+              --restart always \
+              --name kalovrat-admin kalovrat-admin
