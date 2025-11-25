@@ -60,7 +60,9 @@ export default async function Page(params: PageParams) {
             return (
               <TableRow key={`${formattedDate}-${item.chats.id}`}>
                 <TableCell className="align-top">{formattedDate}</TableCell>
-                <TableCell className="align-top">{item.chats.name}</TableCell>
+                <TableCell className="max-w-lg overflow-hidden align-top text-ellipsis whitespace-break-spaces">
+                  {item.chats.name}
+                </TableCell>
                 <TableCell className="max-w-lg overflow-hidden align-top text-ellipsis whitespace-break-spaces">
                   {prize?.name}
                 </TableCell>

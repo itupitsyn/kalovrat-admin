@@ -16,13 +16,13 @@ export const TableWrapper: FC<ITableWrapperProps> = ({ title, children, paginati
     <>
       <h1 className="ml-2 text-4xl font-semibold sm:ml-10">{title}</h1>
 
-      <div className="ml-2 pt-10 sm:ml-10">
-        <div className="overflow-x-auto">{children}</div>
+      <div className="ml-2 py-10 sm:ml-10">
+        {children}
         {pagination && (
           <AppPagination
             page={pagination.page}
             totalItems={pagination.totalItems}
-            className="justify-start pt-6"
+            className="justify-start overflow-x-auto pt-6"
             generateLink={pagination.generateLink}
           />
         )}

@@ -48,7 +48,7 @@ export const AppPagination: FC<IPaginationProps> = ({ generateLink, page, totalI
           </PaginationItem>
         )}
 
-        {page > 2 && (
+        {page > 2 && maxPage > 3 && (
           <PaginationItem>
             <PaginationLink href={generateLink(1)}>{1}</PaginationLink>
           </PaginationItem>
@@ -74,7 +74,7 @@ export const AppPagination: FC<IPaginationProps> = ({ generateLink, page, totalI
           </PaginationItem>
         )}
 
-        {page <= maxPage - 2 && (
+        {page <= maxPage - 2 && maxPage > 3 && (
           <PaginationItem>
             <PaginationLink href={generateLink(maxPage)}>{maxPage}</PaginationLink>
           </PaginationItem>
