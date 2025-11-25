@@ -1,4 +1,4 @@
-import { AppPagination } from '@/components/app/app-pagination';
+import { TableWrapper } from '@/components/app/table-wrapper';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PAGE_SIZE } from '@/lib/constants';
 import prisma from '@/lib/prisma';
@@ -16,39 +16,33 @@ export default async function Page(params: PageParams) {
   ]);
 
   return (
-    <div className="ml-10 flex flex-col items-start overflow-x-auto">
-      <div className="overflow-hidden">
-        <h1 className="text-4xl font-semibold">Пользователи</h1>
+    <TableWrapper
+      title="Пользователи"
+      pagination={{
+        generateLink: (pageNumber) => `/users?page=${pageNumber}`,
+        page,
+        totalItems: total._count,
+      }}
+    >
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>ID</TableHead>
+            <TableHead>Username</TableHead>
+            <TableHead>Name</TableHead>
+          </TableRow>
+        </TableHeader>
 
-        <div className="pt-10">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Username</TableHead>
-                <TableHead>Name</TableHead>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {data.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.id}</TableCell>
-                  <TableCell>@{item.name}</TableCell>
-                  <TableCell>{item.alternative_name}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-
-          <AppPagination
-            page={page}
-            totalItems={total._count}
-            className="justify-start pt-6"
-            generateLink={(pageNumber) => `/users?page=${pageNumber}`}
-          />
-        </div>
-      </div>
-    </div>
+        <TableBody>
+          {data.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell>{item.id}</TableCell>
+              <TableCell>@{item.name}</TableCell>
+              <TableCell>{item.alternative_name}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableWrapper>
   );
 }

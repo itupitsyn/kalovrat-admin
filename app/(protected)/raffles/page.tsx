@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 
-import { AppPagination } from '@/components/app/app-pagination';
+import { TableWrapper } from '@/components/app/table-wrapper';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PAGE_SIZE } from '@/lib/constants';
 import prisma from '@/lib/prisma';
@@ -31,49 +31,45 @@ export default async function Page(params: PageParams) {
   });
 
   return (
-    <div className="ml-10 flex flex-col items-start overflow-x-auto">
-      <div className="overflow-hidden">
-        <h1 className="text-4xl font-semibold">Розыгрыши</h1>
+    <TableWrapper
+      title="Розыгрыши"
+      pagination={{
+        generateLink: (pageNumber) => `/raffles?page=${pageNumber}`,
+        page,
+        totalItems: total._count,
+      }}
+    >
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Дата</TableHead>
+            <TableHead>Чат</TableHead>
+            <TableHead>Приз</TableHead>
+            <TableHead>Победитель</TableHead>
+          </TableRow>
+        </TableHeader>
 
-        <div className="pt-10">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Дата</TableHead>
-                <TableHead>Чат</TableHead>
-                <TableHead>Приз</TableHead>
-                <TableHead>Победитель</TableHead>
+        <TableBody>
+          {data.map((item) => {
+            const formattedDate = format(item.date, 'yyyy-MM-dd');
+
+            const prize = prizes.find(
+              (prize) => prize.date?.valueOf() === item.date.valueOf() && prize.chat_id === item.chats.id,
+            );
+
+            return (
+              <TableRow key={`${formattedDate}-${item.chats.id}`}>
+                <TableCell className="align-top">{formattedDate}</TableCell>
+                <TableCell className="align-top">{item.chats.name}</TableCell>
+                <TableCell className="max-w-lg overflow-hidden align-top text-ellipsis whitespace-break-spaces">
+                  {prize?.name}
+                </TableCell>
+                <TableCell className="align-top">{getUserName(item.users)}</TableCell>
               </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {data.map((item) => {
-                const formattedDate = format(item.date, 'yyyy-MM-dd');
-
-                const prize = prizes.find(
-                  (prize) => prize.date?.valueOf() === item.date.valueOf() && prize.chat_id === item.chats.id,
-                );
-
-                return (
-                  <TableRow key={`${formattedDate}-${item.chats.id}`}>
-                    <TableCell>{formattedDate}</TableCell>
-                    <TableCell>{item.chats.name}</TableCell>
-                    <TableCell>{prize?.name}</TableCell>
-                    <TableCell>{getUserName(item.users)}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-
-          <AppPagination
-            page={page}
-            totalItems={total._count}
-            className="justify-start pt-6"
-            generateLink={(pageNumber) => `/raffles?page=${pageNumber}`}
-          />
-        </div>
-      </div>
-    </div>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </TableWrapper>
   );
 }
