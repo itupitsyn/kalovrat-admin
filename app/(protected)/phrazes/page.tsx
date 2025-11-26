@@ -1,5 +1,7 @@
+import { AddPhrazeForm } from '@/components/app/add-phraze-form';
+import { PhrazesRow } from '@/components/app/phrazes-row';
 import { TableWrapper } from '@/components/app/table-wrapper';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import prisma from '@/lib/prisma';
 
 export default async function Page() {
@@ -7,7 +9,9 @@ export default async function Page() {
 
   return (
     <TableWrapper title="Фразы">
-      <Table>
+      <AddPhrazeForm />
+
+      <Table className="mt-4">
         <TableHeader>
           <TableRow>
             <TableHead>Ключ</TableHead>
@@ -17,10 +21,7 @@ export default async function Page() {
 
         <TableBody>
           {data.map((item) => (
-            <TableRow key={`${item.key}-${item.value}`}>
-              <TableCell>{item.key}</TableCell>
-              <TableCell>{item.value}</TableCell>
-            </TableRow>
+            <PhrazesRow key={`${item.key}-${item.value}`} item={item} />
           ))}
         </TableBody>
       </Table>

@@ -5,13 +5,18 @@ import prisma from '@/lib/prisma';
 export const PUT = async (req: NextRequest) => {
   try {
     const body = await req.json();
-    await prisma.chat_user_roles.update({
+
+    if (!body.key_value?.key || !body.key_value?.value) {
+      return new NextResponse('', { status: 422 });
+    }
+
+    await prisma.phrazes.update({
       data: {
-        is_set_manually: body.is_set_manually,
-        role_id: body.role_id,
+        key: body.key,
+        value: body.value,
       },
       where: {
-        user_id_chat_id: { chat_id: body.chat_id, user_id: body.user_id },
+        key_value: body.key_value,
       },
     });
   } catch (e) {
@@ -24,13 +29,13 @@ export const PUT = async (req: NextRequest) => {
 export const DELETE = async (req: NextRequest) => {
   try {
     const body = await req.json();
-    if (!body.chat_id || !body.user_id) {
+    if (!body.key || !body.value) {
       return new NextResponse('', { status: 422 });
     }
 
-    await prisma.chat_user_roles.delete({
+    await prisma.phrazes.delete({
       where: {
-        user_id_chat_id: { chat_id: body.chat_id, user_id: body.user_id },
+        key_value: body,
       },
     });
   } catch (e) {
@@ -43,12 +48,10 @@ export const DELETE = async (req: NextRequest) => {
 export const POST = async (req: NextRequest) => {
   try {
     const body = await req.json();
-    await prisma.chat_user_roles.create({
+    await prisma.phrazes.create({
       data: {
-        is_set_manually: body.is_set_manually,
-        role_id: body.role_id,
-        chat_id: body.chat_id,
-        user_id: body.user_id,
+        key: body.key,
+        value: body.value,
       },
     });
   } catch (e) {
