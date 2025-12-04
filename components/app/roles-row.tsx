@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertDialogTrigger } from '@radix-ui/react-alert-dialog';
 import axios from 'axios';
 import { CircleSlash, Pencil, Save, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -23,6 +22,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '../ui/alert-dialog';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';

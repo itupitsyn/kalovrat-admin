@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertDialogTrigger } from '@radix-ui/react-alert-dialog';
 import axios from 'axios';
 import { CircleSlash, Pencil, Save, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -24,8 +23,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '../ui/alert-dialog';
 import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
 import { Form, FormField, FormItem, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
 import { TableCell, TableRow } from '../ui/table';
@@ -40,6 +41,41 @@ const schema = z.object({
     value: z.string(),
   }),
   value: z.string({ error: REQUIRED_TEXT }).min(1, { error: REQUIRED_TEXT }),
+  is_uncensored: z.boolean().nullable(),
+  is_with_spoiler: z.boolean().nullable(),
+  group: z.any().transform((value, ctx) => {
+    if (!value) {
+      return null;
+    }
+
+    try {
+      return BigInt(value);
+    } catch {
+      ctx.addIssue({
+        code: 'invalid_type',
+        expected: 'unknown',
+        received: value,
+        message: `Can't be parsed to BigInt`,
+      });
+    }
+  }),
+
+  order: z.any().transform((value, ctx) => {
+    if (!value) {
+      return null;
+    }
+
+    try {
+      return BigInt(value);
+    } catch {
+      ctx.addIssue({
+        code: 'invalid_type',
+        expected: 'unknown',
+        received: value,
+        message: `Can't be parsed to BigInt`,
+      });
+    }
+  }),
 });
 
 type PhrazeFormData = z.infer<typeof schema>;
@@ -55,6 +91,10 @@ export const PhrazesRow: FC<IPhrazesRowProps> = ({ item }) => {
         value: item.key,
       },
       value: item.value,
+      group: item.group,
+      order: item.order,
+      is_with_spoiler: item.is_with_spoiler,
+      is_uncensored: item.is_uncensored,
     },
     resolver: zodResolver(schema),
   });
@@ -71,7 +111,11 @@ export const PhrazesRow: FC<IPhrazesRowProps> = ({ item }) => {
         await axios.put('/api/phrazes', {
           key: data.key.value,
           value: data.value,
-          key_value: item,
+          group: data.group != undefined ? String(data.group) : null,
+          order: data.order != undefined ? String(data.order) : null,
+          is_with_spoiler: data.is_with_spoiler,
+          is_uncensored: data.is_uncensored,
+          key_value: { key: item.key, value: item.value },
         });
         refresh();
         setIsEditMode(false);
@@ -95,7 +139,7 @@ export const PhrazesRow: FC<IPhrazesRowProps> = ({ item }) => {
   return (
     <Form {...methods}>
       <TableRow>
-        <TableCell>
+        <TableCell className="align-top">
           {isEditMode ? (
             <FormField
               control={control}
@@ -118,7 +162,7 @@ export const PhrazesRow: FC<IPhrazesRowProps> = ({ item }) => {
           )}
         </TableCell>
 
-        <TableCell>
+        <TableCell className="max-w-lg overflow-hidden align-top text-ellipsis whitespace-break-spaces">
           {isEditMode ? (
             <FormField
               control={control}
@@ -135,7 +179,79 @@ export const PhrazesRow: FC<IPhrazesRowProps> = ({ item }) => {
           )}
         </TableCell>
 
-        <TableCell className="flex gap-4">
+        <TableCell className="text-center align-top">
+          {isEditMode ? (
+            <FormField
+              control={control}
+              name="is_uncensored"
+              render={({ field }) => (
+                <FormItem>
+                  <div>
+                    <Checkbox checked={!!field.value} onCheckedChange={field.onChange} onBlur={field.onBlur} />
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            <Checkbox checked={!!item.is_uncensored} />
+          )}
+        </TableCell>
+
+        <TableCell className="text-center align-top">
+          {isEditMode ? (
+            <FormField
+              control={control}
+              name="is_with_spoiler"
+              render={({ field }) => (
+                <FormItem>
+                  <div>
+                    <Checkbox checked={!!field.value} onCheckedChange={field.onChange} onBlur={field.onBlur} />
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            <Checkbox checked={!!item.is_with_spoiler} />
+          )}
+        </TableCell>
+
+        <TableCell className="align-top">
+          {isEditMode ? (
+            <FormField
+              control={control}
+              name="group"
+              render={({ field }) => (
+                <FormItem>
+                  <Input type="number" {...field} value={field.value != undefined ? String(field.value) : ''} />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            item.group
+          )}
+        </TableCell>
+
+        <TableCell className="align-top">
+          {isEditMode ? (
+            <FormField
+              control={control}
+              name="order"
+              render={({ field }) => (
+                <FormItem>
+                  <Input type="number" {...field} value={field.value != undefined ? String(field.value) : ''} />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            item.order
+          )}
+        </TableCell>
+
+        <TableCell className="flex gap-4 align-top">
           {isEditMode ? (
             <>
               <Button

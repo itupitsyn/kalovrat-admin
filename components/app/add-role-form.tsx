@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertDialogTrigger } from '@radix-ui/react-alert-dialog';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { FC, useCallback, useState } from 'react';
@@ -23,10 +22,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '../ui/alert-dialog';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
-import { FieldLabel } from '../ui/field';
+import { Field, FieldGroup, FieldLabel } from '../ui/field';
 import { Form, FormField, FormItem, FormMessage } from '../ui/form';
 
 const FORM_ID = 'add-user-role-form';
@@ -42,6 +42,7 @@ const schema = z.object({
     {
       id: z.bigint(),
       name: z.string(),
+      is_uncensored: z.boolean().nullable(),
     },
     { error: REQUIRED_TEXT },
   ),
@@ -184,22 +185,26 @@ export const AddRoleForm: FC<IAddRoleFormProps> = ({ roles, chats, users }) => {
               )}
             />
 
-            <FormField
-              control={control}
-              name="is_set_manually"
-              render={({ field }) => (
-                <FormItem data-slot="checkbox-group">
-                  <FieldLabel htmlFor="is-set-manually">Установлен вручную</FieldLabel>
-                  <Checkbox
-                    id="is-set-manually"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    onBlur={field.onBlur}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <FieldGroup data-slot="checkbox-group">
+              <FormField
+                control={control}
+                name="is_set_manually"
+                render={({ field }) => (
+                  <FormItem>
+                    <Field orientation="horizontal">
+                      <Checkbox
+                        id="is-set-manually"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        onBlur={field.onBlur}
+                      />
+                      <FieldLabel htmlFor="is-set-manually">Установлен вручную</FieldLabel>
+                    </Field>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </FieldGroup>
           </form>
         </Form>
 

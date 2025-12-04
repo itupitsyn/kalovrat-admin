@@ -14,6 +14,10 @@ export const PUT = async (req: NextRequest) => {
       data: {
         key: body.key,
         value: body.value,
+        group: body.group,
+        order: body.order,
+        is_with_spoiler: body.is_with_spoiler,
+        is_uncensored: body.is_uncensored,
       },
       where: {
         key_value: body.key_value,
@@ -52,6 +56,10 @@ export const POST = async (req: NextRequest) => {
       data: {
         key: body.key,
         value: body.value,
+        group: body.group,
+        order: body.order,
+        is_with_spoiler: body.is_with_spoiler,
+        is_uncensored: body.is_uncensored,
       },
     });
   } catch (e) {

@@ -46,7 +46,7 @@ export default async function Page(params: PageParams) {
     >
       <AddRoleForm chats={chats} roles={roles} users={users} />
 
-      <Table className="mt-4">
+      <Table className="mt-4 w-auto">
         <TableHeader>
           <TableRow>
             <TableHead>Чат</TableHead>

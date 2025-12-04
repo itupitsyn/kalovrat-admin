@@ -14,6 +14,7 @@ export default async function Page(params: PageParams) {
     prisma.phrazes.findMany({
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
+      orderBy: [{ key: 'asc' }, { group: 'asc' }, { order: 'asc' }],
     }),
     prisma.phrazes.aggregate({ _count: true }),
   ]);
@@ -29,11 +30,15 @@ export default async function Page(params: PageParams) {
     >
       <AddPhrazeForm />
 
-      <Table className="mt-4">
+      <Table className="mt-4 w-auto">
         <TableHeader>
           <TableRow>
             <TableHead>Ключ</TableHead>
             <TableHead>Фраза</TableHead>
+            <TableHead>Без цензуры</TableHead>
+            <TableHead>Спойлер</TableHead>
+            <TableHead>Группа</TableHead>
+            <TableHead>Порядок в группе</TableHead>
           </TableRow>
         </TableHeader>
 

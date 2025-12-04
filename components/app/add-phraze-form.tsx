@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertDialogTrigger } from '@radix-ui/react-alert-dialog';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { FC, useCallback, useState } from 'react';
@@ -22,9 +21,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '../ui/alert-dialog';
 import { Button } from '../ui/button';
-import { FieldLabel } from '../ui/field';
+import { Checkbox } from '../ui/checkbox';
+import { Field, FieldGroup, FieldLabel } from '../ui/field';
 import { Form, FormField, FormItem, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
 
@@ -36,6 +37,41 @@ const schema = z.object({
     value: z.string(),
   }),
   value: z.string({ error: REQUIRED_TEXT }).min(1, { error: REQUIRED_TEXT }),
+  is_uncensored: z.boolean().nullable(),
+  is_with_spoiler: z.boolean().nullable(),
+  group: z.any().transform((value, ctx) => {
+    if (!value) {
+      return null;
+    }
+
+    try {
+      return BigInt(value);
+    } catch {
+      ctx.addIssue({
+        code: 'invalid_type',
+        expected: 'unknown',
+        received: value,
+        message: `Can't be parsed to BigInt`,
+      });
+    }
+  }),
+
+  order: z.any().transform((value, ctx) => {
+    if (!value) {
+      return null;
+    }
+
+    try {
+      return BigInt(value);
+    } catch {
+      ctx.addIssue({
+        code: 'invalid_type',
+        expected: 'unknown',
+        received: value,
+        message: `Can't be parsed to BigInt`,
+      });
+    }
+  }),
 });
 
 type AddPhrazeFormData = z.infer<typeof schema>;
@@ -49,6 +85,8 @@ export const AddPhrazeForm: FC = () => {
     defaultValues: {
       value: '',
       key: PHRAZE_KEY_OPTIONS[0],
+      is_uncensored: false,
+      is_with_spoiler: false,
     },
   });
 
@@ -65,6 +103,10 @@ export const AddPhrazeForm: FC = () => {
         await axios.post('/api/phrazes', {
           key: data.key.value,
           value: data.value,
+          group: data.group != undefined ? String(data.group) : null,
+          order: data.order != undefined ? String(data.order) : null,
+          is_with_spoiler: data.is_with_spoiler,
+          is_uncensored: data.is_uncensored,
         });
         reset();
         refresh();
@@ -115,6 +157,82 @@ export const AddPhrazeForm: FC = () => {
                 <FormItem>
                   <FieldLabel htmlFor="user">Фраза</FieldLabel>
                   <Input {...field} />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FieldGroup data-slot="checkbox-group">
+              <FormField
+                control={control}
+                name="is_uncensored"
+                render={({ field }) => (
+                  <FormItem data-slot="checkbox-group">
+                    <Field orientation="horizontal">
+                      <Checkbox
+                        id="is-uncensored"
+                        checked={!!field.value}
+                        onCheckedChange={field.onChange}
+                        onBlur={field.onBlur}
+                      />
+                      <FieldLabel htmlFor="is-uncensored">Без цензуры</FieldLabel>
+                    </Field>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </FieldGroup>
+
+            <FieldGroup data-slot="checkbox-group">
+              <FormField
+                control={control}
+                name="is_with_spoiler"
+                render={({ field }) => (
+                  <FormItem>
+                    <Field orientation="horizontal">
+                      <Checkbox
+                        id="is-with-spoiler"
+                        checked={!!field.value}
+                        onCheckedChange={field.onChange}
+                        onBlur={field.onBlur}
+                      />
+                      <FieldLabel htmlFor="is-with-spoiler">Спойлер</FieldLabel>
+                    </Field>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </FieldGroup>
+
+            <FormField
+              control={control}
+              name="group"
+              render={({ field }) => (
+                <FormItem>
+                  <FieldLabel htmlFor="group">Группа</FieldLabel>
+                  <Input
+                    type="number"
+                    id="group"
+                    {...field}
+                    value={field.value != undefined ? String(field.value) : ''}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="order"
+              render={({ field }) => (
+                <FormItem>
+                  <FieldLabel htmlFor="order">Порядок</FieldLabel>
+                  <Input
+                    type="number"
+                    id="order"
+                    {...field}
+                    value={field.value != undefined ? String(field.value) : ''}
+                  />
                   <FormMessage />
                 </FormItem>
               )}

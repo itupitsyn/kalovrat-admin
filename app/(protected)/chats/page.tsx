@@ -1,3 +1,4 @@
+import { IsUncensoredCell } from '@/components/app/is-uncensored-cell';
 import { TableWrapper } from '@/components/app/table-wrapper';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PAGE_SIZE } from '@/lib/constants';
@@ -7,19 +8,20 @@ import { getPageNumber } from '@/lib/utils';
 
 export default async function Page(params: PageParams) {
   const page = await getPageNumber(params);
+
   const [data, total] = await Promise.all([
-    prisma.users.findMany({
+    prisma.chats.findMany({
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),
-    prisma.users.aggregate({ _count: true }),
+    prisma.chats.aggregate({ _count: true }),
   ]);
 
   return (
     <TableWrapper
-      title="Пользователи"
+      title="Чаты"
       pagination={{
-        generateLink: (pageNumber) => `/users?page=${pageNumber}`,
+        generateLink: (pageNumber) => `/chats?page=${pageNumber}`,
         page,
         totalItems: total._count,
       }}
@@ -28,8 +30,8 @@ export default async function Page(params: PageParams) {
         <TableHeader>
           <TableRow>
             <TableHead>ID</TableHead>
-            <TableHead>Username</TableHead>
-            <TableHead>Name</TableHead>
+            <TableHead>Название</TableHead>
+            <TableHead>Без цензуры</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -37,8 +39,8 @@ export default async function Page(params: PageParams) {
           {data.map((item) => (
             <TableRow key={item.id}>
               <TableCell>{item.id}</TableCell>
-              <TableCell>@{item.name}</TableCell>
-              <TableCell>{item.alternative_name}</TableCell>
+              <TableCell>{item.name}</TableCell>
+              <IsUncensoredCell chat_id={item.id} is_uncensored={item.is_uncensored} />
             </TableRow>
           ))}
         </TableBody>

@@ -16,6 +16,7 @@ import {
 const menuItems = [
   { title: 'Пользователи', url: '/users' },
   { title: 'Участники', url: '/participants' },
+  { title: 'Чаты', url: '/chats' },
   { title: 'Розыгрыши', url: '/raffles' },
   { title: 'Фразы', url: '/phrazes' },
   { title: 'Разрешения', url: '/roles' },

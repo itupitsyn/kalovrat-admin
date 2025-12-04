@@ -50,7 +50,7 @@ export default async function Page(params: PageParams) {
         totalItems: total._count,
       }}
     >
-      <Table>
+      <Table className="w-auto">
         <TableHeader>
           <TableRow>
             <TableHead>Дата</TableHead>
