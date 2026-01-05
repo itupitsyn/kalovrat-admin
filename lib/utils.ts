@@ -68,3 +68,15 @@ export const getPageNumber = async ({ searchParams }: PageParams) => {
 
   return page;
 };
+
+export const getPageNumberFromSearchParams = (searchParams: Awaited<PageParams['searchParams']>) => {
+  let page = Number(searchParams.page);
+
+  if (isNaN(page)) {
+    page = 1;
+  } else if (page < 1) {
+    page = 1;
+  }
+
+  return page;
+};
