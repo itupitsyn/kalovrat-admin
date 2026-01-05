@@ -1,4 +1,5 @@
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from 'lucide-react';
+import Link from 'next/link';
 import * as React from 'react';
 
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -29,9 +30,10 @@ type PaginationLinkProps = {
 } & Pick<React.ComponentProps<typeof Button>, 'size'> &
   React.ComponentProps<'a'>;
 
-function PaginationLink({ className, isActive, size = 'icon', ...props }: PaginationLinkProps) {
+function PaginationLink({ className, isActive, size = 'icon', href, ...props }: PaginationLinkProps) {
   return (
-    <a
+    <Link
+      href={href || ''}
       aria-current={isActive ? 'page' : undefined}
       data-slot="pagination-link"
       data-active={isActive}

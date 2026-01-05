@@ -41,6 +41,7 @@ export const SearchInput: FC<SearchInputProps> = ({ baseUrl }) => {
     } else {
       params.delete('search');
     }
+    params.delete('page');
 
     pushRef.current(`/${baseUrl}?${params.toString()}`, {
       scroll: true,

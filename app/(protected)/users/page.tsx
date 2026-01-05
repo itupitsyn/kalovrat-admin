@@ -41,11 +41,31 @@ export default async function Page(params: PageParams) {
     prisma.users.aggregate({ _count: true, where }),
   ]);
 
+  const newParams: string[][] = [];
+  Object.entries(pageParams).forEach(([k, v]) => {
+    if (v === undefined) {
+      return;
+    }
+
+    if (k === 'page') {
+      return;
+    } else if (Array.isArray(v)) {
+      v.forEach((item) => {
+        newParams.push([k, item]);
+      });
+    } else {
+      newParams.push([k, v]);
+    }
+  });
+
   return (
     <TableWrapper
       title="Пользователи"
       pagination={{
-        generateLink: (pageNumber) => `/users?page=${pageNumber}`,
+        generateLink: (pageNumber) => {
+          const urlParams = new URLSearchParams([...newParams, ['page', String(pageNumber)]]);
+          return `/users?${urlParams.toString()}`;
+        },
         page,
         totalItems: total._count,
       }}
