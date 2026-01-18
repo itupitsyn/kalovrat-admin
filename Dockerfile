@@ -1,4 +1,4 @@
-ARG bun_image=oven/bun:latest
+ARG bun_image=oven/bun:slim
 
 FROM $bun_image AS builder
 WORKDIR /kalovrat-admin
