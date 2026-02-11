@@ -5,26 +5,54 @@ on:
     branches:
       - master
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: deploy
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Save Image (Compressed)
+        run: |
+          docker build -t kalovrat-admin .
+          # Сжимаем образ "на лету" для уменьшения размера файла
+          docker save kalovrat-admin | gzip > kalovrat-admin.tar.gz
+
+      - name: Copy image to VDS
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          source: "kalovrat-admin.tar.gz"
+          target: "/tmp"
+
+      - name: Load and Restart with Bun
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
-            cd apps/kalovrat-admin \
-            && docker stop kalovrat-admin || true \
-            && docker rm kalovrat-admin || true \
-            && docker rmi kalovrat-admin || true \
-            && git fetch \
-            && git reset origin/master --hard \
-            && docker build . -t kalovrat-admin \
-            && docker run -d -p 3100:3000 \
+            # Распаковываем и загружаем образ
+            zcat /tmp/kalovrat-admin.tar.gz | docker load
+            
+            # Удаляем старый контейнер
+            docker stop kalovrat-admin || true
+            docker rm kalovrat-admin || true
+            
+            # Запускаем новый
+            docker run -d \
+              -p 3100:3000 \
+              --name kalovrat-admin \
+              --restart always \
               -e DATABASE_URL=${{ secrets.DB_URL }} \
               -e ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }} \
               -e ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }} \
-              --restart always \
-              --name kalovrat-admin kalovrat-admin
+              kalovrat-admin
+            
+            # Очистка
+            rm /tmp/kalovrat-admin.tar.gz
+            docker image prune -f

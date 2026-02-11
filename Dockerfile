@@ -4,6 +4,10 @@ FROM $bun_image AS builder
 WORKDIR /kalovrat-admin
 COPY . .
 RUN bun i --frozen-lockfile
+
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+
 RUN bunx prisma generate
 RUN bun run build
 
