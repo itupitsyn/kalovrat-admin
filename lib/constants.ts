@@ -15,4 +15,8 @@ export const PHRAZE_KEY_OPTIONS = [
     label: 'raffle_providing',
     value: 'raffle_providing',
   },
+  {
+    label: 'size',
+    value: 'size',
+  },
 ];
