@@ -19,4 +19,8 @@ export const PHRAZE_KEY_OPTIONS = [
     label: 'size',
     value: 'size',
   },
+  {
+    label: 'depth',
+    value: 'depth',
+  },
 ];
