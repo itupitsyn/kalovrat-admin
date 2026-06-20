@@ -12,6 +12,10 @@ export const PHRAZE_KEY_OPTIONS = [
     value: 'wrong_admin',
   },
   {
+    label: 'too_late',
+    value: 'too_late',
+  },
+  {
     label: 'raffle_providing',
     value: 'raffle_providing',
   },
