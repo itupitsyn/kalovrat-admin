@@ -27,4 +27,8 @@ export const PHRAZE_KEY_OPTIONS = [
     label: 'depth',
     value: 'depth',
   },
+  {
+    label: 'prediction',
+    value: 'prediction',
+  },
 ];
