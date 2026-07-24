@@ -20,6 +20,8 @@ const menuItems = [
   { title: 'Розыгрыши', url: '/raffles' },
   { title: 'Фразы', url: '/phrazes' },
   { title: 'Разрешения', url: '/roles' },
+  { title: 'Размеры', url: '/sizes' },
+  { title: 'Глубины', url: '/depths' },
 ];
 
 export function AppSidebar() {
