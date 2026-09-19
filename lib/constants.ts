@@ -32,3 +32,13 @@ export const PHRAZE_KEY_OPTIONS = [
     value: 'prediction',
   },
 ];
+
+export const AI_MAINTENANCE_ID = BigInt(1);
+
+// Размеры и глубины — один раздел с двумя вкладками.
+export const MEASUREMENTS_TITLE = 'Размеры и глубины';
+
+export const MEASUREMENT_TABS = [
+  { title: 'Размеры', url: '/sizes' },
+  { title: 'Глубины', url: '/depths' },
+];

@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { MEASUREMENTS_TITLE } from '@/lib/constants';
+
 import {
   Sidebar,
   SidebarContent,
@@ -20,8 +22,8 @@ const menuItems = [
   { title: 'Розыгрыши', url: '/raffles' },
   { title: 'Фразы', url: '/phrazes' },
   { title: 'Разрешения', url: '/roles' },
-  { title: 'Размеры', url: '/sizes' },
-  { title: 'Глубины', url: '/depths' },
+  { title: MEASUREMENTS_TITLE, url: '/sizes' },
+  { title: 'Профилактика AI', url: '/maintenance' },
 ];
 
 export function AppSidebar() {
