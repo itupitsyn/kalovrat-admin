@@ -8,6 +8,10 @@ const globalForPrisma = global as unknown as {
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
+  // adapter-pg sends dates as UTC wall time without an offset and drops the
+  // offset when reading timestamptz back. Postgres fills the gap with the
+  // session time zone, so anything but UTC here shifts every saved time.
+  options: '-c TimeZone=UTC',
 });
 
 const prisma =
