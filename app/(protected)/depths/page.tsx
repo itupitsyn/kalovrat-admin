@@ -1,7 +1,7 @@
 import { MeasurementsTable } from '@/components/app/measurements-table';
 import { SectionTabs } from '@/components/app/section-tabs';
 import { TableWrapper } from '@/components/app/table-wrapper';
-import { MEASUREMENTS_TITLE, MEASUREMENT_TABS, PAGE_SIZE } from '@/lib/constants';
+import { MEASUREMENT_TABS, MEASUREMENTS_TITLE, PAGE_SIZE } from '@/lib/constants';
 import prisma from '@/lib/prisma';
 import { PageParams } from '@/lib/types';
 import { getPageNumber } from '@/lib/utils';

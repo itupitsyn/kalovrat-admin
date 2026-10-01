@@ -14,8 +14,12 @@ export default async function Page(params: PageParams) {
 
   let where: Record<string, unknown> = {};
   if (search) {
+    const trimmed = search.trim();
+    const idCondition = /^-?\d+$/.test(trimmed) ? [{ id: BigInt(trimmed) }] : [];
+
     where = {
       OR: [
+        ...idCondition,
         {
           name: {
             contains: search,

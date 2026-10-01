@@ -5,7 +5,7 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { FC, useCallback } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { useIsClient } from 'usehooks-ts';
 import { z } from 'zod';
@@ -81,12 +81,11 @@ const AiMaintenanceFormContent: FC<IAiMaintenanceFormProps> = ({ isEnabled, ends
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { isSubmitting },
   } = methods;
 
-  const endsAtValue = watch('ends_at');
+  const endsAtValue = useWatch({ control, name: 'ends_at' });
 
   const onSubmit: SubmitHandler<AiMaintenanceFormData> = useCallback(
     async (data) => {

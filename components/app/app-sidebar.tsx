@@ -1,7 +1,5 @@
 import Link from 'next/link';
 
-import { MEASUREMENTS_TITLE } from '@/lib/constants';
-
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { MEASUREMENTS_TITLE } from '@/lib/constants';
 
 const menuItems = [
   { title: 'Пользователи', url: '/users' },
