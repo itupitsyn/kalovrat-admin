@@ -129,8 +129,8 @@ const AiMaintenanceFormContent: FC<IAiMaintenanceFormProps> = ({ isEnabled, ends
                     <FieldLabel htmlFor="is-enabled">Включить профилактику</FieldLabel>
                   </Field>
                   <FieldDescription>
-                    Пока идёт, бот не рисует, не анимирует, не расшифровывает и не пересказывает, а отвечает, что
-                    нейронки на профилактике.
+                    Пока идёт, бот не рисует, не анимирует, не делает наборы стикеров, не расшифровывает и не
+                    пересказывает, а отвечает, что нейронки на профилактике.
                   </FieldDescription>
                 </FormItem>
               )}

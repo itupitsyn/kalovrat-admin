@@ -42,3 +42,18 @@ export const MEASUREMENT_TABS = [
   { title: 'Размеры', url: '/sizes' },
   { title: 'Глубины', url: '/depths' },
 ];
+
+// Общая формулировка отказа по лимиту одна на весь бот, поэтому в таблице одна
+// строка — так же, как у профилактики.
+export const AI_LIMIT_SETTINGS_ID = BigInt(1);
+
+// Периоды лимита. Окно СКОЛЬЗЯЩЕЕ: «20 в час» — это двадцать за последние
+// шестьдесят минут, а не двадцать с начала часа. Значения обязаны совпадать с
+// константами AiPeriod* в боте, он читает эту же колонку.
+export const AI_LIMIT_PERIODS = [
+  { label: 'в час', value: 'hour' },
+  { label: 'в сутки', value: 'day' },
+  { label: 'в неделю', value: 'week' },
+] as const;
+
+export type AiLimitPeriod = (typeof AI_LIMIT_PERIODS)[number]['value'];
