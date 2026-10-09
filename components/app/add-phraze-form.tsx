@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FC, useCallback, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import Select from 'react-select';
@@ -78,6 +78,7 @@ type AddPhrazeFormData = z.infer<typeof schema>;
 
 export const AddPhrazeForm: FC = () => {
   const { refresh } = useRouter();
+  const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
 
   const methods = useForm({
@@ -94,6 +95,7 @@ export const AddPhrazeForm: FC = () => {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { isSubmitting },
   } = methods;
 
@@ -123,6 +125,8 @@ export const AddPhrazeForm: FC = () => {
       <AlertDialogTrigger asChild>
         <Button
           onClick={() => {
+            const filterKey = PHRAZE_KEY_OPTIONS.find((option) => option.value === searchParams.get('key'));
+            setValue('key', filterKey ?? PHRAZE_KEY_OPTIONS[0]);
             setIsOpen(true);
           }}
         >
