@@ -31,6 +31,14 @@ export const PHRAZE_KEY_OPTIONS = [
     label: 'prediction',
     value: 'prediction',
   },
+  {
+    label: 'image_generation',
+    value: 'image_generation',
+  },
+  {
+    label: 'image_refusal',
+    value: 'image_refusal',
+  },
 ];
 
 export const AI_MAINTENANCE_ID = BigInt(1);
