@@ -6,7 +6,7 @@ export const PUT = async (req: NextRequest) => {
   try {
     const body = await req.json();
 
-    if (!body.key_value?.key || !body.key_value?.value) {
+    if (!body.id) {
       return new NextResponse('', { status: 422 });
     }
 
@@ -20,7 +20,7 @@ export const PUT = async (req: NextRequest) => {
         is_uncensored: body.is_uncensored,
       },
       where: {
-        key_value: body.key_value,
+        id: BigInt(body.id),
       },
     });
   } catch (e) {
@@ -33,13 +33,13 @@ export const PUT = async (req: NextRequest) => {
 export const DELETE = async (req: NextRequest) => {
   try {
     const body = await req.json();
-    if (!body.key || !body.value) {
+    if (!body.id) {
       return new NextResponse('', { status: 422 });
     }
 
     await prisma.phrazes.delete({
       where: {
-        key_value: body,
+        id: BigInt(body.id),
       },
     });
   } catch (e) {

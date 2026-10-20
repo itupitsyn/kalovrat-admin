@@ -16,6 +16,7 @@ interface Row {
 }
 
 const serialize = (item: Prisma.phrazesModel): SerializablePhraze => ({
+  id: String(item.id),
   key: item.key,
   value: item.value,
   is_uncensored: item.is_uncensored,
@@ -103,7 +104,7 @@ export default async function Page(params: PageParams) {
         <TableBody>
           {pageRows.map((row) => (
             <PhrazeRow
-              key={row.group != null ? `group-${row.key}-${row.group}` : `single-${row.key}-${row.phrazes[0].value}`}
+              key={row.group != null ? `group-${row.key}-${row.group}` : `single-${row.phrazes[0].id}`}
               groupKey={row.key}
               group={row.group}
               phrazes={row.phrazes}

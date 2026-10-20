@@ -28,6 +28,7 @@ import { Input } from '../ui/input';
 import { TableCell, TableRow } from '../ui/table';
 
 export interface SerializablePhraze {
+  id: string;
   key: string;
   value: string;
   is_uncensored: boolean | null;
@@ -37,7 +38,7 @@ export interface SerializablePhraze {
 }
 
 interface IPhrazeRowProps {
-  /** Исходный ключ строки (часть первичного ключа фраз). */
+  /** Исходный ключ строки: он же общий ключ всех её фраз. */
   groupKey: string;
   /** Исходная группа: null — отдельная фраза без группы. */
   group: string | null;
@@ -46,8 +47,8 @@ interface IPhrazeRowProps {
 }
 
 interface PhrazeField {
-  /** Значение фразы на момент загрузки (часть первичного ключа). null — новая, ещё не сохранённая фраза. */
-  originalValue: string | null;
+  /** ID записи в базе. null — новая, ещё не сохранённая фраза. */
+  id: string | null;
   value: string;
   is_uncensored: boolean;
   is_with_spoiler: boolean;
@@ -63,7 +64,7 @@ const buildDefaultValues = (groupKey: string, group: string | null, phrazes: Ser
   key: { label: groupKey, value: groupKey },
   group: group ?? '',
   items: phrazes.map((item) => ({
-    originalValue: item.value,
+    id: item.id,
     value: item.value,
     is_uncensored: !!item.is_uncensored,
     is_with_spoiler: !!item.is_with_spoiler,
@@ -94,9 +95,9 @@ export const PhrazeRow: FC<IPhrazeRowProps> = ({ groupKey, group, phrazes }) => 
 
   const onRemove = useCallback(
     (index: number) => {
-      const original = fields[index]?.originalValue;
-      if (original != null) {
-        setDeleted((prev) => [...prev, original]);
+      const id = fields[index]?.id;
+      if (id != null) {
+        setDeleted((prev) => [...prev, id]);
       }
       remove(index);
     },
@@ -120,8 +121,8 @@ export const PhrazeRow: FC<IPhrazeRowProps> = ({ groupKey, group, phrazes }) => 
 
       setIsSubmitting(true);
       try {
-        for (const value of deleted) {
-          await axios.delete('/api/phrazes', { data: { key: groupKey, value } });
+        for (const id of deleted) {
+          await axios.delete('/api/phrazes', { data: { id } });
         }
 
         for (let index = 0; index < values.items.length; index++) {
@@ -136,13 +137,10 @@ export const PhrazeRow: FC<IPhrazeRowProps> = ({ groupKey, group, phrazes }) => 
             is_with_spoiler: item.is_with_spoiler,
           };
 
-          if (item.originalValue == null) {
+          if (item.id == null) {
             await axios.post('/api/phrazes', payload);
           } else {
-            await axios.put('/api/phrazes', {
-              ...payload,
-              key_value: { key: groupKey, value: item.originalValue },
-            });
+            await axios.put('/api/phrazes', { ...payload, id: item.id });
           }
         }
 
@@ -156,20 +154,20 @@ export const PhrazeRow: FC<IPhrazeRowProps> = ({ groupKey, group, phrazes }) => 
         setIsSubmitting(false);
       }
     },
-    [deleted, groupKey, refresh],
+    [deleted, refresh],
   );
 
   const onDeleteRow = useCallback(async () => {
     try {
       for (const item of phrazes) {
-        await axios.delete('/api/phrazes', { data: { key: groupKey, value: item.value } });
+        await axios.delete('/api/phrazes', { data: { id: item.id } });
       }
       toast.success(group != null ? 'Группа удалена' : 'Запись удалена');
       refresh();
     } catch {
       toast.error('Ошибка удаления');
     }
-  }, [group, groupKey, phrazes, refresh]);
+  }, [group, phrazes, refresh]);
 
   return (
     <TableRow className={group != null ? 'bg-muted/30' : undefined}>
@@ -235,9 +233,7 @@ export const PhrazeRow: FC<IPhrazeRowProps> = ({ groupKey, group, phrazes }) => 
                   type="button"
                   size="sm"
                   variant="outline"
-                  onClick={() =>
-                    append({ originalValue: null, value: '', is_uncensored: false, is_with_spoiler: false })
-                  }
+                  onClick={() => append({ id: null, value: '', is_uncensored: false, is_with_spoiler: false })}
                 >
                   <Plus />
                   Добавить фразу
@@ -250,7 +246,7 @@ export const PhrazeRow: FC<IPhrazeRowProps> = ({ groupKey, group, phrazes }) => 
         ) : group != null ? (
           <div className="flex flex-col gap-2">
             {phrazes.map((item, index) => (
-              <div key={item.value} className="flex min-h-8 items-center gap-2">
+              <div key={item.id} className="flex min-h-8 items-center gap-2">
                 <span className="text-muted-foreground w-5 shrink-0 text-right tabular-nums">{index + 1}.</span>
                 <span className="whitespace-break-spaces">{item.value}</span>
               </div>
@@ -293,7 +289,7 @@ export const PhrazeRow: FC<IPhrazeRowProps> = ({ groupKey, group, phrazes }) => 
         ) : group != null ? (
           <div className="flex flex-col gap-2">
             {phrazes.map((item) => (
-              <div key={item.value} className="flex min-h-8 items-center justify-center">
+              <div key={item.id} className="flex min-h-8 items-center justify-center">
                 <Checkbox checked={!!item.is_uncensored} />
               </div>
             ))}
@@ -335,7 +331,7 @@ export const PhrazeRow: FC<IPhrazeRowProps> = ({ groupKey, group, phrazes }) => 
         ) : group != null ? (
           <div className="flex flex-col gap-2">
             {phrazes.map((item) => (
-              <div key={item.value} className="flex min-h-8 items-center justify-center">
+              <div key={item.id} className="flex min-h-8 items-center justify-center">
                 <Checkbox checked={!!item.is_with_spoiler} />
               </div>
             ))}
