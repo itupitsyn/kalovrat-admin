@@ -1,6 +1,7 @@
 import { AiLimitTextForm } from '@/components/app/ai-limit-text-form';
 import { SearchInput } from '@/components/app/search-input';
 import { TableWrapper } from '@/components/app/table-wrapper';
+import { SerializableAiBalance, UserBalanceCell } from '@/components/app/user-balance-cell';
 import { SerializableAiLimit, UserLimitCell } from '@/components/app/user-limit-cell';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AI_LIMIT_SETTINGS_ID, PAGE_SIZE } from '@/lib/constants';
@@ -56,11 +57,13 @@ export default async function Page(params: PageParams) {
     prisma.ai_limit_settings.findUnique({ where: { id: AI_LIMIT_SETTINGS_ID } }),
   ]);
 
+  const ids = data.map((item) => item.id);
+
   // Лимиты есть у единиц, поэтому расход считаем только для них, и только для
   // тех, кто попал на эту страницу. Окно скользящее: отсчитываем назад от
   // сейчас, а не от начала часа.
   const limitRows = await prisma.ai_limits.findMany({
-    where: { user_id: { in: data.map((item) => item.id) } },
+    where: { user_id: { in: ids } },
   });
 
   const limits = new Map<string, SerializableAiLimit>(
@@ -83,6 +86,37 @@ export default async function Page(params: PageParams) {
       }),
     ),
   );
+
+  // Купленное считаем двумя запросами на всю страницу, а не по человеку:
+  // карманов мало, а платежей у плательщика сотни, и складывать их по одному
+  // значило бы PAGE_SIZE запросов ради одной графы.
+  const [creditRows, purchaseRows] = await Promise.all([
+    prisma.ai_credits.findMany({ where: { user_id: { in: ids } } }),
+    prisma.ai_purchases.groupBy({
+      by: ['user_id'],
+      where: { user_id: { in: ids } },
+      _sum: { stars: true },
+      _count: { charge_id: true },
+    }),
+  ]);
+
+  // Карман и платежи сходятся по человеку, но существовать могут и по
+  // отдельности: всё истратил — остаётся строка с нулём, а платежей нет у
+  // того, кому баллы начислили руками.
+  const balances = new Map<string, SerializableAiBalance>();
+  creditRows.forEach((row) => {
+    balances.set(String(row.user_id), { balance: Number(row.balance), stars: 0, purchases: 0 });
+  });
+  purchaseRows.forEach((row) => {
+    const key = String(row.user_id);
+    const pocket = balances.get(key) ?? { balance: 0, stars: 0, purchases: 0 };
+
+    balances.set(key, {
+      ...pocket,
+      stars: Number(row._sum.stars ?? 0),
+      purchases: row._count.charge_id,
+    });
+  });
 
   const newParams: string[][] = [];
   Object.entries(pageParams).forEach(([k, v]) => {
@@ -123,6 +157,7 @@ export default async function Page(params: PageParams) {
             <TableHead>ID</TableHead>
             <TableHead>Username</TableHead>
             <TableHead>Name</TableHead>
+            <TableHead>Купленные баллы</TableHead>
             <TableHead>Лимит нейронок</TableHead>
           </TableRow>
         </TableHeader>
@@ -133,6 +168,9 @@ export default async function Page(params: PageParams) {
               <TableCell>{item.id}</TableCell>
               <TableCell>@{item.name}</TableCell>
               <TableCell>{item.alternative_name}</TableCell>
+              <TableCell className="align-top">
+                <UserBalanceCell balance={balances.get(String(item.id)) ?? null} />
+              </TableCell>
               <TableCell>
                 <UserLimitCell userId={String(item.id)} limit={limits.get(String(item.id)) ?? null} />
               </TableCell>

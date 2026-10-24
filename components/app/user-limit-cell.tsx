@@ -81,7 +81,7 @@ export const UserLimitCell: FC<IUserLimitCellProps> = ({ userId, limit }) => {
           min={1}
           placeholder="—"
           className="w-20"
-          aria-label="Сколько генераций"
+          aria-label="Сколько баллов"
           {...register('amount')}
         />
 
