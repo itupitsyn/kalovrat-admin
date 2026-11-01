@@ -43,7 +43,13 @@ jobs:
             docker stop kalovrat-admin || true
             docker rm kalovrat-admin || true
             
-            # Запускаем новый
+            # Запускаем новый.
+            #
+            # Переменную, которой нет в этом списке, контейнер не увидит
+            # никогда — сколько её ни заводи в секретах. AI_API_* нужны
+            # разделу «Барьер содержания»: он живёт в сервисе генерации, и
+            # админка ходит к нему по HTTP. Не заданы — раздел скажет, что
+            # сервис недоступен, остальные страницы работают как работали.
             docker run -d \
               -p 3100:3000 \
               --name kalovrat-admin \
@@ -51,6 +57,8 @@ jobs:
               -e DATABASE_URL=${{ secrets.DB_URL }} \
               -e ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }} \
               -e ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }} \
+              -e AI_API_URL="${{ secrets.AI_API_URL }}" \
+              -e AI_API_TOKEN="${{ secrets.AI_API_TOKEN }}" \
               kalovrat-admin
             
             # Очистка

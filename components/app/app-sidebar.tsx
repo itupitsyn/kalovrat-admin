@@ -23,6 +23,7 @@ const menuItems = [
   { title: 'Разрешения', url: '/roles' },
   { title: MEASUREMENTS_TITLE, url: '/sizes' },
   { title: 'Профилактика AI', url: '/maintenance' },
+  { title: 'Барьер содержания', url: '/moderation' },
 ];
 
 export function AppSidebar() {

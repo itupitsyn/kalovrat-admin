@@ -3,7 +3,9 @@ import { SearchInput } from '@/components/app/search-input';
 import { TableWrapper } from '@/components/app/table-wrapper';
 import { SerializableAiBalance, UserBalanceCell } from '@/components/app/user-balance-cell';
 import { SerializableAiLimit, UserLimitCell } from '@/components/app/user-limit-cell';
+import { UserModerationCell } from '@/components/app/user-moderation-cell';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { getModeration } from '@/lib/ai-api';
 import { AI_LIMIT_SETTINGS_ID, PAGE_SIZE } from '@/lib/constants';
 import prisma from '@/lib/prisma';
 import { PageParams } from '@/lib/types';
@@ -118,6 +120,18 @@ export default async function Page(params: PageParams) {
     });
   });
 
+  // Барьер содержания живёт в сервисе генерации, а не в этой базе. Таблица
+  // обязана открываться и когда он недоступен: тогда графа показывает прочерк,
+  // а не роняет страницу — людей и лимиты смотрят чаще, чем цензуру.
+  let moderation = null;
+  try {
+    moderation = await getModeration();
+  } catch (e) {
+    console.error(e);
+  }
+
+  const underBarrier = new Set((moderation?.users ?? []).map(String));
+
   const newParams: string[][] = [];
   Object.entries(pageParams).forEach(([k, v]) => {
     if (v === undefined) {
@@ -159,6 +173,7 @@ export default async function Page(params: PageParams) {
             <TableHead>Name</TableHead>
             <TableHead>Купленные баллы</TableHead>
             <TableHead>Лимит нейронок</TableHead>
+            <TableHead className="text-center">Барьер</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -174,6 +189,11 @@ export default async function Page(params: PageParams) {
               <TableCell>
                 <UserLimitCell userId={String(item.id)} limit={limits.get(String(item.id)) ?? null} />
               </TableCell>
+              <UserModerationCell
+                userId={String(item.id)}
+                checked={moderation ? underBarrier.has(String(item.id)) : null}
+                everyone={!!moderation && (moderation.all || moderation.forced)}
+              />
             </TableRow>
           ))}
         </TableBody>
