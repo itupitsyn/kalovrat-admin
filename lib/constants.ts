@@ -2,6 +2,11 @@ export const REQUIRED_TEXT = 'Обязательное поле';
 
 export const PAGE_SIZE = 20;
 
+export const CHAT_TABS = [
+  { title: 'Чаты', url: '/chats' },
+  { title: 'Дни рождения', url: '/chats/birthdays' },
+];
+
 export const PHRAZE_KEY_OPTIONS = [
   {
     label: 'accept_prize',
@@ -26,6 +31,14 @@ export const PHRAZE_KEY_OPTIONS = [
   {
     label: 'depth',
     value: 'depth',
+  },
+  {
+    label: 'birthday_tomorrow',
+    value: 'birthday_tomorrow',
+  },
+  {
+    label: 'birthday_today',
+    value: 'birthday_today',
   },
   {
     label: 'prediction',

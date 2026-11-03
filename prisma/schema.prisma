@@ -29,13 +29,15 @@ model chat_user_roles {
 }
 
 model chats {
-  id              BigInt            @id @default(autoincrement())
-  name            String            @default("")
-  is_uncensored   Boolean?
-  admins          admins[]
-  chat_user_roles chat_user_roles[]
-  prizes          prizes[]
-  raffles         raffles[]
+  id                 BigInt               @id @default(autoincrement())
+  name               String               @default("")
+  is_uncensored      Boolean?
+  birthdays_enabled  Boolean?             @default(false)
+  birthday_reminders birthday_reminders[]
+  admins             admins[]
+  chat_user_roles    chat_user_roles[]
+  prizes             prizes[]
+  raffles            raffles[]
 }
 
 model participants {
@@ -94,16 +96,19 @@ model roles {
 }
 
 model users {
-  id               BigInt            @id @default(autoincrement())
-  name             String
-  alternative_name String            @default("") @db.VarChar(255)
-  created_at       DateTime?         @db.Timestamptz(6)
-  updated_at       DateTime?         @db.Timestamptz(6)
-  deleted_at       DateTime?         @db.Timestamptz(6)
-  admins           admins[]
-  chat_user_roles  chat_user_roles[]
-  participants     participants[]
-  raffles          raffles[]
+  id                 BigInt               @id @default(autoincrement())
+  name               String
+  alternative_name   String               @default("") @db.VarChar(255)
+  // ММ-ДД, без года. Колонку создаёт бот своей автомиграцией.
+  birthday           String?              @db.VarChar(5)
+  birthday_reminders birthday_reminders[]
+  created_at         DateTime?            @db.Timestamptz(6)
+  updated_at         DateTime?            @db.Timestamptz(6)
+  deleted_at         DateTime?            @db.Timestamptz(6)
+  admins             admins[]
+  chat_user_roles    chat_user_roles[]
+  participants       participants[]
+  raffles            raffles[]
 
   @@index([name], map: "idx_name")
 }
@@ -158,6 +163,19 @@ model ai_usages {
   created_at DateTime @db.Timestamptz(6)
 
   @@index([user_id, created_at], map: "idx_ai_usages_user_created")
+}
+
+// Кому в каком чате напоминать о дне рождения. Таблицу создаёт бот; даты в
+// reminded_on и congratulated_on ставит он же, когда сообщение ушло.
+model birthday_reminders {
+  chat_id          BigInt
+  user_id          BigInt
+  reminded_on      String @default("") @db.VarChar(10)
+  congratulated_on String @default("") @db.VarChar(10)
+  chats            chats  @relation(fields: [chat_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_birthday_reminders_chat")
+  users            users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_birthday_reminders_user")
+
+  @@id([chat_id, user_id])
 }
 
 model ai_credits {

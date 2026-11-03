@@ -1,7 +1,9 @@
+import { BirthdaysEnabledCell } from '@/components/app/birthdays-enabled-cell';
 import { IsUncensoredCell } from '@/components/app/is-uncensored-cell';
+import { SectionTabs } from '@/components/app/section-tabs';
 import { TableWrapper } from '@/components/app/table-wrapper';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PAGE_SIZE } from '@/lib/constants';
+import { CHAT_TABS, PAGE_SIZE } from '@/lib/constants';
 import prisma from '@/lib/prisma';
 import { PageParams } from '@/lib/types';
 import { getPageNumber } from '@/lib/utils';
@@ -26,12 +28,15 @@ export default async function Page(params: PageParams) {
         totalItems: total._count,
       }}
     >
-      <Table className="w-auto">
+      <SectionTabs tabs={CHAT_TABS} activeUrl="/chats" />
+
+      <Table className="mt-4 w-auto">
         <TableHeader>
           <TableRow>
             <TableHead>ID</TableHead>
             <TableHead>Название</TableHead>
             <TableHead>Без цензуры</TableHead>
+            <TableHead>Дни рождения</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -41,6 +46,7 @@ export default async function Page(params: PageParams) {
               <TableCell>{item.id}</TableCell>
               <TableCell>{item.name}</TableCell>
               <IsUncensoredCell chat_id={item.id} is_uncensored={item.is_uncensored} />
+              <BirthdaysEnabledCell chat_id={item.id} birthdays_enabled={item.birthdays_enabled} />
             </TableRow>
           ))}
         </TableBody>

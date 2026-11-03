@@ -2,6 +2,7 @@ import { AiLimitTextForm } from '@/components/app/ai-limit-text-form';
 import { SearchInput } from '@/components/app/search-input';
 import { TableWrapper } from '@/components/app/table-wrapper';
 import { SerializableAiBalance, UserBalanceCell } from '@/components/app/user-balance-cell';
+import { UserBirthdayCell } from '@/components/app/user-birthday-cell';
 import { SerializableAiLimit, UserLimitCell } from '@/components/app/user-limit-cell';
 import { UserModerationCell } from '@/components/app/user-moderation-cell';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -171,6 +172,7 @@ export default async function Page(params: PageParams) {
             <TableHead>ID</TableHead>
             <TableHead>Username</TableHead>
             <TableHead>Name</TableHead>
+            <TableHead>День рождения</TableHead>
             <TableHead>Купленные баллы</TableHead>
             <TableHead>Лимит нейронок</TableHead>
             <TableHead className="text-center">Барьер</TableHead>
@@ -183,6 +185,9 @@ export default async function Page(params: PageParams) {
               <TableCell>{item.id}</TableCell>
               <TableCell>@{item.name}</TableCell>
               <TableCell>{item.alternative_name}</TableCell>
+              <TableCell>
+                <UserBirthdayCell userId={String(item.id)} birthday={item.birthday} />
+              </TableCell>
               <TableCell className="align-top">
                 <UserBalanceCell balance={balances.get(String(item.id)) ?? null} />
               </TableCell>

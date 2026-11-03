@@ -43,6 +43,7 @@ const schema = z.object({
       id: z.bigint(),
       name: z.string(),
       is_uncensored: z.boolean().nullable(),
+      birthdays_enabled: z.boolean().nullable(),
     },
     { error: REQUIRED_TEXT },
   ),
