@@ -51,7 +51,7 @@ jobs:
             # админка ходит к нему по HTTP. Не заданы — раздел скажет, что
             # сервис недоступен, остальные страницы работают как работали.
             docker run -d \
-              -p 3100:3000 \
+              -p 172.17.0.1:3100:3000 \
               --name kalovrat-admin \
               --restart always \
               -e DATABASE_URL=${{ secrets.DB_URL }} \
